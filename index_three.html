@@ -1,0 +1,249 @@
+﻿<!-- 
+    create by wws
+
+-->
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        *{
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+<body >
+    <!--<div style="width: 100%; height: auto; margin: auto; float: left; align-content: center; position: absolute; top: 50px;">
+        <div style=" width:150px; margin: auto; align-items: center;">
+            <h1 align="center" style="color: beige;">阶乘</h1>
+            <input id="in1" type="text" >
+            <input id="in2" type="text" >
+        </div>
+    </div>-->
+    <div >
+        <canvas id="canvas">
+
+        </canvas>
+    </div>
+
+
+
+</body>
+
+    <script type="text/javascript">
+    var W ;
+    var H ;
+    var ballNum = 128;
+    var mouse_x = 0;
+    var mouse_y = 0;
+    var canvas;
+    var cxt;
+    var balls = new ArrayBuffer(ballNum);
+	var m_set = new Set();
+
+    var lineColor = "rgb(159,148,130)";
+    var ballColor = "rgb(179,168,150)";
+    var bgcolor = "rgb(3,38,58)";
+
+    var lineRang = 128;
+    var creatPoint = function(vx,vy,vr,vxx,vxy,vcolor)
+    {
+        var point = new Object();
+        point.x = vx;
+        point.y = vy;
+        point.r = vr;
+        point.xx = vxx;
+        point.xy = vxy;
+        point.bcolor = vcolor;
+        console.log(vxx+"---"+vxy);
+        return point;
+    }
+
+    var init = function()
+    {
+        for(var i = 0;i < ballNum;i++)
+        {
+            balls[i] = creatPoint(parseInt(Math.random() * (W - 10) + 5,10),
+                    parseInt(Math.random() * (H - 10) + 5,10),
+                    Math.random() * 2 + 1,
+                    (Math.random() * 40 - 20) / 10.0,
+                    (Math.random() * 40 - 20) / 10.0,
+                    /*"rgba("+parseInt(Math.random() * 160 + 90)+","+*/parseInt(Math.random() * 160 + 1)/*+","+parseInt(Math.random() * 160 + 90)+","+parseInt(Math.random() * 160 + 90)+")"*/
+            )
+        }
+    }
+
+    var getRang = function(x,y,x1,y1)
+    {
+        var rx = Math.abs(x - x1);
+        var ry = Math.abs(y - y1);
+
+        return Math.sqrt(Math.pow(rx,2) + Math.pow(ry,2));
+    }
+
+    var getVerticalX = function(a ,b)
+    {
+        return -b / a;
+    } 
+
+    
+
+    var draw = function()
+    {
+
+       //cxt.clearRect(0,0,W,H);
+        /*cxt.fillStyle = "#000000";
+        cxt.fillRect(0,0,W,H);
+        */
+        cxt.fillStyle = bgcolor;
+        cxt.fillRect(0,0,canvas.width,canvas.height);
+        cxt.fill();
+        m_set.clear();
+        for(var i = 0;i < ballNum;i++)
+        {
+            cxt.beginPath();
+            //cxt.strokeStyle = "rgba("+balls[i].bgColor+ ","+balls[i].bgColor+","+balls[i].bgColor+","+balls[i].bgColor+")";
+            cxt.lineWidth = balls[i].r * 0.2;
+            for(var j = i + 1;j < ballNum;j++)
+            {
+
+                if(getRang(balls[i].x,balls[i].y,balls[j].x,balls[j].y) < lineRang)
+                {
+
+                    if(!m_set.has((i+1)*(j+1)))
+                    {
+                        //console.log("jin"+" "+i+" "+j+" "+m_set.size);
+                        m_set.add((i+1)*(j+1));
+                        cxt.moveTo(balls[i].x,balls[i].y);
+                        cxt.lineTo(balls[j].x,balls[j].y);
+
+                        var tx = balls[i].x - balls[j].x ;
+                        var ty = balls[i].y - balls[j].y ;
+                        
+                        if(tx > 0)
+                        {
+                            tx = getVerticalX(tx,ty);
+                            ty = 1;   
+                        }else{
+                            tx = 0 - getVerticalX(tx,ty);
+                            ty = -1;
+                        }
+
+                        if(Math.abs(tx) >= 2)
+                        {
+                            if(tx > 0)
+                            {
+                                var temp = tx;
+                                tx /= tx;
+                                ty  /= temp;
+                            }else{
+                                var temp = tx;
+                                tx /= tx;
+                                ty  /= temp;
+
+                                tx = -tx;
+                                ty = -ty;
+                            }
+                        }
+                        
+                       
+
+                        balls[j].xx = tx;
+                        balls[j].xy = ty;
+                    }
+                }
+
+
+            }
+
+
+            cxt.closePath();
+
+
+            cxt.stroke();
+            //cxt.fillStyle = "rgba("+balls[i].bgColor+ ","+balls[i].bgColor+","+balls[i].bgColor+","+balls[i].bgColor+")";
+            cxt.beginPath();
+            cxt.arc(balls[i].x,balls[i].y,balls[i].r,0,Math.PI * 2,true);
+            cxt.closePath();
+            cxt.fillStyle = ballColor;
+            cxt.fill();
+
+            if(mouse_x != balls[0].x && mouse_y != balls[0].y)
+            {
+                var vx = mouse_x - balls[0].x;
+                var vy = mouse_y - balls[0].y;
+
+                balls[0].x += vx / 10.0;
+                balls[0].y += vy / 10.0;
+                
+            }
+           
+            if(i != 0)
+            {
+                balls[i].x += balls[i].xx;
+                balls[i].y += balls[i].xy;
+            }
+            if(balls[i].x >= W - balls[i].r|| balls[i].x <= balls[i].r)
+            {
+                balls[i].xx = -balls[i].xx;
+            }
+
+            if(balls[i].y >= H -balls[i].r || balls[i].y <= balls[i].r)
+            {
+                balls[i].xy = -balls[i].xy;
+            }
+        }
+
+        //setInterval(draw,1000);
+		window.requestAnimationFrame(draw);
+    }
+
+
+    var onload = function ()
+    {
+        /*var in1 = document.getElementById("in1");
+
+        var btn = document.getElementById("btn");
+        in1.onkeyup = function(e)
+        {
+            if(e.keyCode == 13)
+            {
+                var res = parseInt(in1.value);
+                for(var i = parseInt(in1.value) - 1;i != 0;i--)
+                {
+                    res = res * i;
+                }
+                in2.value = res;
+            }
+        }*/
+        //document.write(parseFloat(getRang(4,4,3,2)))
+
+        canvas = document.getElementById("canvas");
+
+        canvas.width = document.body.scrollWidth ;
+        canvas.height = screen.height * 0.95;
+
+        cxt = canvas.getContext("2d");
+      //  document.write("asdasd")
+
+        cxt.lineWidth = 0.6;
+		W = canvas.width;
+		H = canvas.height;
+
+        cxt.strokeStyle = lineColor;
+        cxt.fillStyle = ballColor;
+
+        window.onmousemove = function(e)
+        {
+            mouse_x = e.clientX;
+            mouse_y = e.clientY;
+        }
+        
+        init();
+        window.requestAnimationFrame(draw);
+
+    }
+</script>
+</html>
