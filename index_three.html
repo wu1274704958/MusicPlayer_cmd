@@ -35,7 +35,7 @@
     <script type="text/javascript">
     var W ;
     var H ;
-    var ballNum = 128;
+    var ballNum = 58;
     var mouse_x = 0;
     var mouse_y = 0;
     var canvas;
@@ -83,6 +83,13 @@
         return Math.sqrt(Math.pow(rx,2) + Math.pow(ry,2));
     }
 
+    var getVerticalX = function(a ,b)
+    {
+        return -b / a;
+    } 
+
+    
+
     var draw = function()
     {
 
@@ -111,6 +118,40 @@
                         m_set.add((i+1)*(j+1));
                         cxt.moveTo(balls[i].x,balls[i].y);
                         cxt.lineTo(balls[j].x,balls[j].y);
+
+                        var tx = balls[i].x - balls[j].x ;
+                        var ty = balls[i].y - balls[j].y ;
+                        
+                        if(tx > 0)
+                        {
+                            tx = getVerticalX(tx,ty);
+                            ty = 1;   
+                        }else{
+                            tx = 0 - getVerticalX(tx,ty);
+                            ty = -1;
+                        }
+
+                        if(Math.abs(tx) >= 1)
+                        {
+                            if(tx > 0)
+                            {
+                                var temp = tx;
+                                tx /= tx;
+                                ty  /= temp;
+                            }else{
+                                var temp = tx;
+                                tx /= tx;
+                                ty  /= temp;
+
+                                tx = -tx;
+                                ty = -ty;
+                            }
+                        }
+                        
+                       
+
+                        balls[j].xx = tx;
+                        balls[j].xy = ty;
                     }
                 }
 
@@ -134,8 +175,8 @@
                 var vx = mouse_x - balls[0].x;
                 var vy = mouse_y - balls[0].y;
 
-                balls[0].x += vx / 2000.0;
-                balls[0].y += vy / 2000.0;
+                balls[0].x += vx / 10.0;
+                balls[0].y += vy / 10.0;
                 
             }
            
@@ -155,6 +196,7 @@
             }
         }
 
+        //setInterval(draw,1000);
 		window.requestAnimationFrame(draw);
     }
 
