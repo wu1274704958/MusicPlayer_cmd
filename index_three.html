@@ -35,7 +35,7 @@
     <script type="text/javascript">
     var W ;
     var H ;
-    var ballNum = 58;
+    var ballNum = 128;
     var mouse_x = 0;
     var mouse_y = 0;
     var canvas;
@@ -47,7 +47,7 @@
     var ballColor = "rgb(179,168,150)";
     var bgcolor = "rgb(3,38,58)";
 
-    var lineRang = 128;
+    var lineRang = 78;
     var creatPoint = function(vx,vy,vr,vxx,vxy,vcolor)
     {
         var point = new Object();
@@ -152,6 +152,9 @@
 
                         balls[j].xx = tx;
                         balls[j].xy = ty;
+						
+						balls[i].xx = 0;
+						balls[i].xy = 0;
                     }
                 }
 
@@ -227,6 +230,7 @@
 
         cxt = canvas.getContext("2d");
       //  document.write("asdasd")
+		document.body.style.overflow='hidden'
 
         cxt.lineWidth = 0.6;
 		W = canvas.width;
